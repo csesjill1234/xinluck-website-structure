@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>星運娛樂城官網架構與後台 Mockup v2</title>
+<style>
+  :root{
+    --bg:#f7f3eb;
+    --card:#ffffff;
+    --ink:#2b2118;
+    --muted:#776b5e;
+    --line:#d8c7aa;
+    --hard:#f7c948;
+    --cms:#35b779;
+    --api:#4f8df7;
+    --hard-bg:#fff7d6;
+    --cms-bg:#ddf8e9;
+    --api-bg:#e6f0ff;
+    --red:#9f1111;
+    --red-dark:#641010;
+    --gold:#c99a22;
+    --soft:#fffaf0;
+    --danger:#d64c4c;
+    --gray:#f1eadf;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif;
+    background:linear-gradient(180deg,#fffaf0 0%,var(--bg) 100%);
+    color:var(--ink);
+  }
+  .page{
+    max-width:1320px;
+    margin:0 auto;
+    padding:40px 28px 70px;
+  }
+  .hero{
+    background:
+      radial-gradient(circle at 88% 12%,rgba(255,218,120,.38),transparent 28%),
+      linear-gradient(135deg,#7b0000 0%,#b41414 62%,#d7a728 100%);
+    color:#fff;
+    border-radius:30px;
+    padding:36px 42px;
+    box-shadow:0 18px 40px rgba(80,20,0,.16);
+    margin-bottom:26px;
+  }
+  .hero h1{
+    margin:0 0 10px;
+    font-size:34px;
+    letter-spacing:.04em;
+  }
+  .hero p{
+    margin:0;
+    color:#ffe8b8;
+    font-size:17px;
+    line-height:1.7;
+  }
+  .legend{
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+    margin:22px 0 0;
+  }
+  .legend span{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:rgba(255,255,255,.15);
+    border:1px solid rgba(255,255,255,.25);
+    padding:9px 13px;
+    border-radius:999px;
+    font-size:14px;
+    color:#fff;
+  }
+  .dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+  .dot.hard{background:var(--hard)}
+  .dot.cms{background:var(--cms)}
+  .dot.api{background:var(--api)}
+  .section{
+    background:rgba(255,255,255,.72);
+    border:1px solid #eadbc5;
+    border-radius:26px;
+    padding:28px;
+    margin-top:24px;
+    box-shadow:0 10px 30px rgba(90,45,0,.07);
+  }
+  .section-title{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:18px;
+    margin-bottom:22px;
+  }
+  h2{
+    margin:0;
+    color:#4b2200;
+    font-size:25px;
+  }
+  .note{
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.6;
+    text-align:right;
+    max-width:460px;
+  }
+
+  /* Tree */
+  .tree-wrap{
+    overflow:auto;
+    padding:10px 4px 18px;
+  }
+  .tree{
+    min-width:1160px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:24px;
+  }
+  .root{
+    background:linear-gradient(135deg,#891010,#c99a22);
+    color:#fff;
+    padding:18px 34px;
+    border-radius:20px;
+    font-weight:900;
+    font-size:24px;
+    box-shadow:0 12px 28px rgba(120,35,0,.22);
+  }
+  .branch-row{
+    display:grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap:16px;
+    width:100%;
+    position:relative;
+  }
+  .branch-row:before{
+    content:"";
+    position:absolute;
+    top:-14px;
+    left:8%;
+    right:8%;
+    height:2px;
+    background:var(--line);
+  }
+  .branch{position:relative}
+  .branch:before{
+    content:"";
+    position:absolute;
+    top:-14px;
+    left:50%;
+    width:2px;
+    height:14px;
+    background:var(--line);
+  }
+  .branch-card{
+    background:var(--card);
+    border:1px solid #eadbc5;
+    border-radius:18px;
+    overflow:hidden;
+    height:100%;
+    box-shadow:0 8px 22px rgba(70,30,0,.07);
+  }
+  .branch-head{
+    padding:14px 14px;
+    font-size:18px;
+    font-weight:900;
+    color:#fff;
+    text-align:center;
+    background:linear-gradient(135deg,#7b0000,#b01414);
+  }
+  .items{
+    padding:13px;
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+  }
+  .pill{
+    border-radius:12px;
+    padding:9px 10px;
+    font-size:14px;
+    line-height:1.35;
+    border:1px solid transparent;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+  }
+  .pill small{
+    font-size:12px;
+    white-space:nowrap;
+    opacity:.8;
+  }
+  .hard{background:var(--hard-bg);border-color:#eed06b}
+  .cms{background:var(--cms-bg);border-color:#9be0b8}
+  .api{background:var(--api-bg);border-color:#adc9ff}
+
+  /* Summary cards */
+  .summary-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:16px;
+  }
+  .summary-card{
+    background:#fff;
+    border:1px solid #eadbc5;
+    border-radius:20px;
+    padding:20px;
+    box-shadow:0 8px 20px rgba(70,30,0,.06);
+  }
+  .summary-card h3{
+    margin:0 0 10px;
+    font-size:18px;
+    color:#5a2200;
+  }
+  .summary-card p{
+    margin:0;
+    color:#6e5f50;
+    font-size:14px;
+    line-height:1.8;
+  }
+
+  /* Tables */
+  .tables{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+  }
+  table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    overflow:hidden;
+    border-radius:18px;
+    border:1px solid #eadbc5;
+    background:#fff;
+  }
+  th,td{
+    padding:12px 14px;
+    text-align:left;
+    border-bottom:1px solid #f0e4d3;
+    font-size:14px;
+    vertical-align:top;
+  }
+  th{
+    background:#7b0000;
+    color:#fff2c5;
+    font-size:15px;
+  }
+  tr:last-child td{border-bottom:0}
+  td:first-child{font-weight:800;color:#4d2a00;white-space:nowrap}
+  .tag{
+    display:inline-flex;
+    padding:3px 9px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:800;
+    margin-right:4px;
+  }
+  .tag.api{background:var(--api-bg);color:#2355a5;border:1px solid #adc9ff}
+  .tag.cms{background:var(--cms-bg);color:#137544;border:1px solid #9be0b8}
+  .tag.hard{background:var(--hard-bg);color:#8a6500;border:1px solid #eed06b}
+  .tag.warn{background:#fff1e7;color:#a64b00;border:1px solid #ffc48a}
+
+  /* Mockup */
+  .mockup{
+    display:grid;
+    grid-template-columns:240px 1fr;
+    background:#fff;
+    border:1px solid #eadbc5;
+    border-radius:24px;
+    overflow:hidden;
+    min-height:720px;
+    box-shadow:0 14px 34px rgba(70,30,0,.08);
+  }
+  .sidebar{
+    background:#641010;
+    color:#fff;
+    padding:24px 18px;
+  }
+  .brand{
+    font-size:20px;
+    font-weight:900;
+    margin-bottom:24px;
+    color:#ffdc75;
+  }
+  .menu{display:flex;flex-direction:column;gap:8px}
+  .menu-item{
+    padding:12px 14px;
+    border-radius:12px;
+    color:#ffe8d0;
+    font-size:15px;
+  }
+  .menu-item.active{
+    background:#ffcf4d;
+    color:#3b1600;
+    font-weight:900;
+  }
+  .content{
+    padding:26px;
+    background:#fbf7f0;
+  }
+  .topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:18px;
+    gap:12px;
+  }
+  .topbar h3{margin:0;font-size:24px}
+  .btn{
+    border:0;
+    border-radius:12px;
+    padding:11px 16px;
+    background:#9f1111;
+    color:#fff;
+    font-weight:800;
+    font-family:inherit;
+    white-space:nowrap;
+  }
+  .btn.blue{background:#4f8df7}
+  .btn.gray{background:#786c61}
+  .grid2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+  }
+  .grid3{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+  }
+  .panel{
+    background:#fff;
+    border:1px solid #eadbc5;
+    border-radius:18px;
+    padding:18px;
+    margin-bottom:16px;
+  }
+  .panel h4{
+    margin:0 0 14px;
+    color:#672000;
+    font-size:18px;
+  }
+  label{
+    display:block;
+    font-size:13px;
+    color:#755f49;
+    margin-bottom:7px;
+    font-weight:800;
+  }
+  .input,.textarea,.select{
+    width:100%;
+    border:1px solid #dcc8ad;
+    background:#fff;
+    border-radius:12px;
+    padding:12px 13px;
+    min-height:42px;
+    color:#3d2a17;
+    font-size:14px;
+    margin-bottom:13px;
+  }
+  .textarea{min-height:100px}
+  .upload{
+    border:2px dashed #d6bb8b;
+    border-radius:14px;
+    min-height:116px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#9b7a43;
+    background:#fffaf0;
+    font-weight:800;
+    margin-bottom:13px;
+    text-align:center;
+  }
+  .switch-row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:10px;
+  }
+  .chip{
+    padding:8px 10px;
+    border-radius:999px;
+    background:#f1eadf;
+    color:#66472b;
+    font-size:13px;
+    font-weight:800;
+  }
+  .chip.on{background:#ddf8e9;color:#137544}
+  .chip.blue{background:#e6f0ff;color:#2355a5}
+  .chip.gold{background:#fff7d6;color:#8a6500}
+  .sync-cards{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+  }
+  .sync{
+    background:#fff;
+    border:1px solid #cfe0ff;
+    border-radius:18px;
+    padding:18px;
+  }
+  .sync h4{margin:0 0 8px;color:#174078}
+  .sync p{margin:0 0 15px;color:#667;font-size:14px;line-height:1.6}
+  .sync .meta{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    background:#f5f8ff;
+    border:1px solid #dce8ff;
+    border-radius:12px;
+    padding:10px 12px;
+    margin-bottom:14px;
+    color:#40506a;
+    font-size:13px;
+  }
+  .list-preview{
+    border:1px solid #eadbc5;
+    border-radius:16px;
+    overflow:hidden;
+    background:#fff;
+  }
+  .row{
+    display:grid;
+    grid-template-columns:1.2fr 1fr 120px 100px;
+    gap:10px;
+    padding:12px;
+    border-bottom:1px solid #f0e4d3;
+    align-items:center;
+    font-size:13px;
+  }
+  .row.head{
+    background:#fff7e6;
+    font-weight:900;
+    color:#653100;
+  }
+  .row:last-child{border-bottom:0}
+  .status{
+    display:inline-flex;
+    justify-content:center;
+    border-radius:999px;
+    padding:4px 9px;
+    background:#ddf8e9;
+    color:#137544;
+    font-weight:900;
+    font-size:12px;
+  }
+  .mini{
+    color:#7d7064;
+    font-size:12px;
+    line-height:1.5;
+  }
+  .callout{
+    border-left:5px solid #4f8df7;
+    background:#eef5ff;
+    padding:14px 16px;
+    border-radius:14px;
+    color:#35435b;
+    font-size:14px;
+    line-height:1.7;
+    margin-bottom:16px;
+  }
+  .callout strong{color:#174078}
+
+  @media(max-width:960px){
+    .tables,.grid2,.grid3,.sync-cards,.summary-grid{grid-template-columns:1fr}
+    .mockup{grid-template-columns:1fr}
+    .sidebar{display:none}
+    .section-title{display:block}
+    .note{text-align:left;margin-top:8px}
+    .row{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <h1>星運娛樂城官網架構與後台 Mockup v2</h1>
+      <p>修正版重點：活動由系統端 API 取得且可用金幣 / 星幣勾選；公告沒有站別，不需排重；官網後台主要管理遊戲、攻略文章、SEO、FAQ，並提供活動 / 公告同步。</p>
+      <div class="legend">
+        <span><i class="dot hard"></i>🟡 寫死 / VA支援 RD 前台處理</span>
+        <span><i class="dot cms"></i>🟢 VA支援後台管理</span>
+        <span><i class="dot api"></i>🔵 系統端 API 取得</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">
+        <h2>一、官網架構樹狀圖</h2>
+      </div>
+
+      <div class="tree-wrap">
+        <div class="tree">
+          <div class="root">星運娛樂城官網</div>
+          <div class="branch-row">
+            <div class="branch">
+              <div class="branch-card">
+                <div class="branch-head">首頁</div>
+                <div class="items">
+                  <div class="pill hard">Hero Banner <small>寫死</small></div>
+                  <div class="pill hard">品牌介紹 <small>寫死</small></div>
+                  <div class="pill cms">精選遊戲 <small>後台</small></div>
+                  <div class="pill cms">攻略推薦 <small>置頂文章</small></div>
+                  <div class="pill api">活動 / 公告跑馬燈 <small>API</small></div>
+                  <div class="pill hard">Footer <small>寫死</small></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="branch">
+              <div class="branch-card">
+                <div class="branch-head">精選遊戲</div>
+                <div class="items">
+                  <div class="pill cms">遊戲列表 <small>後台</small></div>
+                  <div class="pill cms">遊戲圖片 <small>上傳</small></div>
+                  <div class="pill cms">遊戲名稱 <small>後台</small></div>
+                  <div class="pill cms">遊戲說明 <small>後台</small></div>
+                  <div class="pill cms">遊戲ID / 代碼 <small>待確認</small></div>
+                  <div class="pill cms">前往遊戲連結 <small>預留</small></div>
+                  <div class="pill cms">排序 / 上架 <small>後台</small></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="branch">
+              <div class="branch-card">
+                <div class="branch-head">活動公告</div>
+                <div class="items">
+                  <div class="pill api">活動列表 <small>API</small></div>
+                  <div class="pill api">活動內容 <small>API</small></div>
+                  <div class="pill api">公告列表 <small>API</small></div>
+                  <div class="pill api">公告內容 <small>API</small></div>
+                  <div class="pill api">只抓啟用 / 顯示中 <small>API</small></div>
+                  <div class="pill api">公告置頂 <small>API</small></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="branch">
+              <div class="branch-card">
+                <div class="branch-head">攻略專區</div>
+                <div class="items">
+                  <div class="pill cms">文章分類 <small>後台</small></div>
+                  <div class="pill cms">文章列表 <small>後台</small></div>
+                  <div class="pill cms">文章內容 <small>後台</small></div>
+                  <div class="pill cms">文章 FAQ <small>結構化</small></div>
+                  <div class="pill cms">首頁推薦文章 <small>置頂</small></div>
+                  <div class="pill cms">SEO 資料 <small>後台</small></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="branch">
+              <div class="branch-card">
+                <div class="branch-head">新手專區</div>
+                <div class="items">
+                  <div class="pill hard">VIP 說明 <small>寫死</small></div>
+                  <div class="pill hard">公會說明 <small>寫死</small></div>
+                  <div class="pill hard">新手 FAQ <small>寫死</small></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="branch">
+              <div class="branch-card">
+                <div class="branch-head">客服中心</div>
+                <div class="items">
+                  <div class="pill hard">聯絡方式 <small>寫死</small></div>
+                  <div class="pill hard">LINE QR Code <small>寫死</small></div>
+                  <div class="pill hard">常見問題 <small>寫死</small></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">
+        <h2>二、目前收斂結論</h2>
+      </div>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h3>🔵 系統端負責</h3>
+          <p>提供活動與公告 API。活動可用金幣 / 星幣勾選，不需重複上稿；公告沒有站別，因此不需要排重。</p>
+        </div>
+        <div class="summary-card">
+          <h3>🟢 VA支援後台負責</h3>
+          <p>管理遊戲資料、攻略文章、文章 FAQ、SEO、網址後綴、首頁推薦文章，並提供同步活動 / 公告按鈕。</p>
+        </div>
+        <div class="summary-card">
+          <h3>🟡 先寫死</h3>
+          <p>Hero Banner、品牌介紹、新手專區、客服中心與 Footer 先由 RD 寫在前台，不做後台。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">
+        <h2>三、系統端 API 與 VA支援接收資料</h2>
+      </div>
+
+      <div class="tables">
+        <table>
+          <thead><tr><th colspan="2">系統端需提供：活動 API</th></tr></thead>
+          <tbody>
+            <tr><td>活動ID</td><td>唯一識別</td></tr>
+            <tr><td>活動名稱</td><td>官網活動標題</td></tr>
+            <tr><td>幣別</td><td>金幣 / 星幣，可同一篇活動勾選多站</td></tr>
+            <tr><td>類型</td><td>例如一般活動</td></tr>
+            <tr><td>形式</td><td>例如純文字</td></tr>
+            <tr><td>狀態</td><td><span class="tag api">只抓啟用</span></td></tr>
+            <tr><td>顯示</td><td><span class="tag api">只抓顯示中</span></td></tr>
+            <tr><td>活動內容</td><td>官網詳情內容</td></tr>
+            <tr><td>相關連結</td><td>若有連結，可在官網活動詳情顯示按鈕</td></tr>
+            <tr><td>標籤</td><td>若有標籤，可顯示於活動卡片或詳情頁</td></tr>
+            <tr><td>起始 / 結束時間</td><td>官網顯示活動期間；不限時也需回傳</td></tr>
+            <tr><td>建立 / 更新時間</td><td>判斷資料新舊與同步狀態</td></tr>
+          </tbody>
+        </table>
+
+        <table>
+          <thead><tr><th colspan="2">系統端需提供：公告 API</th></tr></thead>
+          <tbody>
+            <tr><td>公告ID</td><td>唯一識別</td></tr>
+            <tr><td>公告標題</td><td>官網公告標題</td></tr>
+            <tr><td>公告內容</td><td>官網詳情內容</td></tr>
+            <tr><td>狀態</td><td><span class="tag api">只抓啟用</span></td></tr>
+            <tr><td>置頂</td><td>置頂公告可排序在公告列表前方</td></tr>
+            <tr><td>顯示</td><td>建議只抓「顯示中」，不抓待發布</td></tr>
+            <tr><td>起始 / 結束時間</td><td>官網顯示期間，例如維護公告</td></tr>
+            <tr><td>建立 / 更新時間</td><td>判斷資料新舊與同步狀態</td></tr>
+            <tr><td>站別 / 排重</td><td><span class="tag hard">不需要</span> 目前公告沒有站別，不需排重</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    
+  </main>
+</body>
+</html>
